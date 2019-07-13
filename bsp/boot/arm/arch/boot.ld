@@ -25,9 +25,10 @@ SECTIONS {
 		*(.bss)
 		*(COMMON)
 	}
-	.tail : {
+	
+    . = CONFIG_LOADER_TEXT + CONFIG_LOADER_MAX_SIZE - 1;
+   	.tail : {
 		FILL(0xDEADC0DE);
-        . = ALIGN(CONFIG_LOADER_MAX_SIZE) - 1;
         BYTE(0x00);
 	}
 }

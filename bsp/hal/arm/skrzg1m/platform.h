@@ -1,5 +1,5 @@
-/*-
- * Copyright (c) 2006, Kohsuke Ohtani
+/*
+ * Copyright (c) 2008, Kohsuke Ohtani
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,60 +27,21 @@
  * SUCH DAMAGE.
  */
 
-#include <sys/param.h>
-#include <sys/elf.h>
-#include <boot.h>
+#ifndef _INTEGRATOR_PLATFORM_H
+#define _INTEGRATOR_PLATFORM_H
 
-int
-relocate_rel(Elf32_Rel *rel, Elf32_Addr sym_val, char *target_sect)
-{
-	Elf32_Addr *where, tmp;
-	Elf32_Sword addend;
+/* number of interrupt vectors */
+#define NIRQS		29
 
-	where = (Elf32_Addr *)(target_sect + rel->r_offset);
+#ifdef CONFIG_MMU
+#define CM_IOMEM_BASE	0xc0000000
+#else
+#define CM_IOMEM_BASE	0
+#endif
 
-	switch (ELF32_R_TYPE(rel->r_info)) {
-	case R_ARM_NONE:
-		break;
-	case R_ARM_ABS32:
-	case R_ARM_MOVW_ABS_NC:
-		*where += (vaddr_t)ptokv(sym_val);
-		ELFDBG(("R_ARM_ABS32: %lx -> %lx\n",
-			(long)where, (long)*where));
-		break;
-	case R_ARM_PC24:
-	case R_ARM_PLT32:
-	case R_ARM_CALL:
-	case R_ARM_JUMP24:
-		addend = (Elf32_Sword)(*where & 0x00ffffff);
-		if (addend & 0x00800000)
-			addend |= 0xff000000;
-		tmp = sym_val - (Elf32_Addr)where + (addend << 2);
-		tmp >>= 2;
-		*where = (*where & 0xff000000) | (tmp & 0x00ffffff);
-		ELFDBG(("R_ARM_PC24: %lx -> %lx\n",
-			(long)where, (long)*where));
-		break;
-	case R_ARM_V4BX:
-		break;
-	case R_ARM_MOVT_ABS:
-		*where += (vaddr_t)ptokv(sym_val);
-		ELFDBG(("R_ARM_MOVT_ABS: %lx -> %lx\n",
-			(long)where, (long)*where));
-		break;
-	default:
-		ELFDBG(("Unknown relocation type=%d\n",
-			ELF32_R_TYPE(rel->r_info)));
-		panic("relocation fail");
-		return -1;
-	}
-	return 0;
-}
+#define FPGA_BASE	(CM_IOMEM_BASE + 0x10000000)
+#define TIMER_BASE	(CM_IOMEM_BASE + 0x13000000)
+#define ICU_BASE	(CM_IOMEM_BASE + 0x14000000)
+#define UART_BASE	(CM_IOMEM_BASE + 0x16000000)
 
-int
-relocate_rela(Elf32_Rela *rela, Elf32_Addr sym_val, char *target_sec)
-{
-
-	panic("invalid relocation type");
-	return -1;
-}
+#endif /* !_INTEGRATOR_PLATFORM_H */

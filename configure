@@ -185,19 +185,6 @@ settools()
 		objcopy="gobjcopy"
 		objdump="gobjdump"
 		;;
-	CYGWIN*|MINGW*)
-		case "$arch" in
-		x86)
-			prefix="i386-elf-"
-			;;
-		ppc)
-			prefix="powerpc-elf-"
-			;;
-		*)
-			prefix="$arch-elf-"
-			;;
-		esac
-		;;
 	esac
 
 	#

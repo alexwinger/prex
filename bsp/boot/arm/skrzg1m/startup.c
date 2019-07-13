@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 2006, Kohsuke Ohtani
+ * Copyright (c) 2008-2009, Kohsuke Ohtani
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,59 +28,44 @@
  */
 
 #include <sys/param.h>
-#include <sys/elf.h>
+#include <sys/bootinfo.h>
 #include <boot.h>
 
-int
-relocate_rel(Elf32_Rel *rel, Elf32_Addr sym_val, char *target_sect)
+/*
+ * Setup boot information.
+ */
+static void
+bootinfo_init(void)
 {
-	Elf32_Addr *where, tmp;
-	Elf32_Sword addend;
+	struct bootinfo *bi = bootinfo;
 
-	where = (Elf32_Addr *)(target_sect + rel->r_offset);
+	/*
+	 * Screen size
+	 */
+	bi->video.text_x = 80;
+	bi->video.text_y = 25;
 
-	switch (ELF32_R_TYPE(rel->r_info)) {
-	case R_ARM_NONE:
-		break;
-	case R_ARM_ABS32:
-	case R_ARM_MOVW_ABS_NC:
-		*where += (vaddr_t)ptokv(sym_val);
-		ELFDBG(("R_ARM_ABS32: %lx -> %lx\n",
-			(long)where, (long)*where));
-		break;
-	case R_ARM_PC24:
-	case R_ARM_PLT32:
-	case R_ARM_CALL:
-	case R_ARM_JUMP24:
-		addend = (Elf32_Sword)(*where & 0x00ffffff);
-		if (addend & 0x00800000)
-			addend |= 0xff000000;
-		tmp = sym_val - (Elf32_Addr)where + (addend << 2);
-		tmp >>= 2;
-		*where = (*where & 0xff000000) | (tmp & 0x00ffffff);
-		ELFDBG(("R_ARM_PC24: %lx -> %lx\n",
-			(long)where, (long)*where));
-		break;
-	case R_ARM_V4BX:
-		break;
-	case R_ARM_MOVT_ABS:
-		*where += (vaddr_t)ptokv(sym_val);
-		ELFDBG(("R_ARM_MOVT_ABS: %lx -> %lx\n",
-			(long)where, (long)*where));
-		break;
-	default:
-		ELFDBG(("Unknown relocation type=%d\n",
-			ELF32_R_TYPE(rel->r_info)));
-		panic("relocation fail");
-		return -1;
-	}
-	return 0;
+	/*
+	 * DBSC3 DDR0 - 512MB -- SYSPAGE + BOOTIMG
+	 */
+	bi->ram[0].base = 0x40000000;
+	bi->ram[0].size = 0x00088000;
+	bi->ram[0].type = MT_RESERVED;
+
+	/*
+	 * DBSC3 DDR0 - 512MB -- REMAINING RAM
+	 */
+	bi->ram[1].base = 0x40088000;
+	bi->ram[1].size = 0x1FF78000;
+	bi->ram[1].type = MT_USABLE;
+
+
+	bi->nr_rams = 2;
 }
 
-int
-relocate_rela(Elf32_Rela *rela, Elf32_Addr sym_val, char *target_sec)
+void
+startup(void)
 {
 
-	panic("invalid relocation type");
-	return -1;
+	bootinfo_init();
 }

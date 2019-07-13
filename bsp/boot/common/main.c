@@ -60,7 +60,7 @@ main(void)
 	 * Initialize debug port.
 	 */
 	debug_init();
-	DPRINTF(("Prex Boot Loader\n"));
+	DPRINTF(("\r\nPrex Boot Loader\r\n"));
 
 	/*
 	 * Do platform dependent initialization.
