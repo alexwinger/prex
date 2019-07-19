@@ -41,7 +41,7 @@
 #include <cpufunc.h>
 #include <locore.h>
 
-#include "../yrzg1m/platform.h"
+#include "../skrzg1m/platform.h"
 
 /* System control reg */
 #define SC_CTRL		(*(volatile uint32_t *)(FPGA_BASE + 0x0c))

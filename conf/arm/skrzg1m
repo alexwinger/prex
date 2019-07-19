@@ -13,9 +13,10 @@ makeoptions	ASFLAGS+= -mfpu=softfpa
 #
 memory		LOADER_TEXT		0x4000A000	# Start of bootloader
 memory		LOADER_MAX_SIZE	0x00003000	# Boot loader max size
-memory		KERNEL_TEXT		0x4000D000	# Start of kernel
-memory		BOOTIMG_BASE	0xC000D000	# Location of Bootimg base (SYSPAGE_BASE + LOADER_TEXT + LOADER_MAX_SIZE)
-memory		SYSPAGE_BASE	0xC0000000	# Location of system page
+memory		BOOTIMG_BASE	0x4000D000	# Location of Bootimg base (SYSPAGE_BASE + LOADER_TEXT + LOADER_MAX_SIZE)
+memory		SYSPAGE_BASE	0xB0000000	# Location of system page
+memory		KERNEL_TEXT		0xB000A000	# Location of system page
+
 
 #
 # Tunable paramters
@@ -30,7 +31,7 @@ options 	FS_THREADS=4	# Number of file system threads
 # Platform settings
 #
 options		CORTEX_A15	# Processor core
-options 	MMU		# Memory management unit
+#options 	MMU		# Memory management unit
 options 	CACHE		# Cache memory
 #options 	FPU		# Floating point unit
 #options 	ROMBOOT		# Boot from ROM

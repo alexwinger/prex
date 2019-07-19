@@ -7,14 +7,13 @@ OUTPUT_ARCH(arm)
 ENTRY(kernel_start)
 PHDRS
 {
-	text PT_LOAD FILEHDR PHDRS;
+	text PT_LOAD FILEHDR PHDRS AT(SIZEOF_HEADERS);
 	data PT_LOAD;
 }
 SECTIONS
 {
-	. = CONFIG_KERNEL_TEXT + SIZEOF_HEADERS;
 
-	.text : {
+	.text CONFIG_KERNEL_TEXT + SIZEOF_HEADERS :AT(SIZEOF_HEADERS){
 		*(.text)
 		*(.glue_7)
 		*(.glue_7t)

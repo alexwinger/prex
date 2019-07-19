@@ -39,7 +39,7 @@
 #include <context.h>
 #include <locore.h>
 
-#include "../yrzg1m/platform.h"
+#include "../skrzg1m/platform.h"
 
 /* Number of IRQ lines */
 #define NIRQS		29

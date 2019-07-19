@@ -43,7 +43,6 @@ relocate_rel(Elf32_Rel *rel, Elf32_Addr sym_val, char *target_sect)
 	case R_ARM_NONE:
 		break;
 	case R_ARM_ABS32:
-	case R_ARM_MOVW_ABS_NC:
 		*where += (vaddr_t)ptokv(sym_val);
 		ELFDBG(("R_ARM_ABS32: %lx -> %lx\n",
 			(long)where, (long)*where));
@@ -62,12 +61,40 @@ relocate_rel(Elf32_Rel *rel, Elf32_Addr sym_val, char *target_sect)
 			(long)where, (long)*where));
 		break;
 	case R_ARM_V4BX:
-		break;
-	case R_ARM_MOVT_ABS:
-		*where += (vaddr_t)ptokv(sym_val);
-		ELFDBG(("R_ARM_MOVT_ABS: %lx -> %lx\n",
+	   /* Preserve Rm and the condition code. Alter
+		* other bits to re-code instruction as
+		* MOV PC,Rm.
+		*/
+	       *where &= 0xf000000f;
+	       *where |= 0x01a0f000;
+	    ELFDBG(("R_ARM_V4BX: %lx -> %lx\n",
+	    	(long)where, (long)*where));
+	    break;
+	case R_ARM_PREL31:
+		addend = *where + sym_val - ((Elf32_Sword)where);
+		*where = addend & 0x7fffffff;
+		ELFDBG(("R_ARM_PREL31: %lx -> %lx\n",
 			(long)where, (long)*where));
 		break;
+
+	case R_ARM_MOVW_ABS_NC:
+	case R_ARM_MOVT_ABS:
+		addend = *where;
+		addend = ((addend & 0xf0000) >> 4) | (addend & 0xfff);
+		addend = (addend ^ 0x8000) - 0x8000;
+
+		addend += (vaddr_t)ptokv(sym_val);
+		if (ELF32_R_TYPE(rel->r_info) == R_ARM_MOVT_ABS)
+			addend >>= 16;
+
+		*where &= 0xfff0f000;
+		*where |= ((addend & 0xf000) << 4) |(addend & 0x0fff);
+		ELFDBG(("R_ARM_MOVT_ABS: %lx -> %lx\n",
+			(long)where, (long)*where));
+
+
+		break;
+
 	default:
 		ELFDBG(("Unknown relocation type=%d\n",
 			ELF32_R_TYPE(rel->r_info)));

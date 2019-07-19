@@ -13,7 +13,7 @@ CFLAGS+=	-c -ansi -pedantic -Wall -Wundef -Wstrict-prototypes \
 	       	$(GCCFLAGS)
 CPPFLAGS+=	$(DEFINES) -I. $(addprefix -I,$(INCSDIR))
 ACPPFLAGS+=	-D__ASSEMBLY__ -c
-LDFLAGS+=	-static -nostdlib $(addprefix -L,$(LIBSDIR))
+LDFLAGS+=	--nmagic -static -nostdlib $(addprefix -L,$(LIBSDIR))
 
 ifeq ($(_DEBUG_),1)
 CFLAGS+=	-fno-omit-frame-pointer -ggdb

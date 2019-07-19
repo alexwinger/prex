@@ -35,22 +35,27 @@
 #include <kernel.h>
 #include <cpufunc.h>
 
-#include "../yrzg1m/platform.h"
+#include "../skrzg1m/platform.h"
 
-#define UART_FR		(*(volatile uint32_t *)(UART_BASE + 0x18))
-#define UART_DR		(*(volatile uint32_t *)(UART_BASE + 0x00))
+#define SCIF_BASE	0xE6E60000
+#define SCIF_SCFTDR	(*(volatile uint8_t *)(SCIF_BASE + 0x0C))
+#define SCIF_SCFDR  (*(volatile uint16_t *)(SCIF_BASE + 0x1C))
 
-/* Flag register */
-#define FR_RXFE		0x10	/* Receive FIFO empty */
-#define FR_TXFF		0x20	/* Transmit FIFO full */
+/* SCIF_SCFDR FLAGS */
+#define SCFDR_T		   0x1F00
+#define SCFDR_T_FULL   0x1000
+#define SCFDR_R		   0x001F
+#define SCFDR_R_FULL   0x10
 
 static void
 serial_putc(char c)
 {
 
-	while (UART_FR & FR_TXFF)
+#if defined(DEBUG) && defined(CONFIG_DIAG_SERIAL)
+	while ((SCIF_SCFDR & SCFDR_T) == SCFDR_T_FULL)
 		;
-	UART_DR = (uint32_t)c;
+	SCIF_SCFTDR = c;
+#endif
 }
 
 void

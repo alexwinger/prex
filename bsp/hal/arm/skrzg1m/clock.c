@@ -37,7 +37,7 @@
 #include <cpufunc.h>
 #include <sys/ipl.h>
 
-#include "../yrzg1m/platform.h"
+#include "../skrzg1m/platform.h"
 
 /* Interrupt vector for timer (TMR1) */
 #define CLOCK_IRQ	6

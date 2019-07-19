@@ -46,21 +46,13 @@ bootinfo_init(void)
 	bi->video.text_y = 25;
 
 	/*
-	 * DBSC3 DDR0 - 512MB -- SYSPAGE + BOOTIMG
+	 * DDR0 - 2GB
 	 */
 	bi->ram[0].base = 0x40000000;
-	bi->ram[0].size = 0x00088000;
-	bi->ram[0].type = MT_RESERVED;
+	bi->ram[0].size = 0x80000000;
+	bi->ram[0].type = MT_USABLE;
 
-	/*
-	 * DBSC3 DDR0 - 512MB -- REMAINING RAM
-	 */
-	bi->ram[1].base = 0x40088000;
-	bi->ram[1].size = 0x1FF78000;
-	bi->ram[1].type = MT_USABLE;
-
-
-	bi->nr_rams = 2;
+	bi->nr_rams = 1;
 }
 
 void
